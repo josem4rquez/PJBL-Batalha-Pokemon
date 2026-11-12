@@ -1,3 +1,4 @@
+package model;
 public class Status {
     private int hp;
     private int ataque;

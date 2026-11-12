@@ -1,3 +1,4 @@
+package model;
 public class EstrategiaMaisForte implements EstrategiaDeAtaque {
 
     // testa todos os ataques e fica com o que causa mais dano no alvo

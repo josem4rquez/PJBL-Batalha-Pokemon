@@ -1,71 +1,56 @@
 package api;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
 
-import com.google.gson.JsonElement;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+
 import com.google.gson.JsonObject;
+import model.Ataque;
+import model.Pokemon;
+import model.Status;
 
 public class TesteApi {
     public static void main(String[] args) throws Exception {
-        PokeApiClient api = new PokeApiClient();
-        JsonObject json = api.get("https://pokeapi.co/api/v2/pokemon/charmander");
-        System.out.println(json.get("name").getAsString());
+        PokeApiClient client = new PokeApiClient();
+        PokemonMapper mapper = new PokemonMapper(client);
 
-        List<String> abilities = new ArrayList<>();
-        
-        for (JsonElement e : json.getAsJsonArray("abilities") ) {
-            JsonObject item = e.getAsJsonObject();
-            String nome = item.getAsJsonObject("ability").get("name").getAsString();
-            abilities.add(nome);
-        
-        }
+        String[] nomes = {"charmander", "bulbasaur", "squirtle", "charizard", "ditto", "pikachuuu"};
 
-        List<String> tipos = new ArrayList<>();
-        for (JsonElement e : json.getAsJsonArray("types")) {
-            JsonObject item = e.getAsJsonObject();
-            String nome = item.getAsJsonObject("type").get("name").getAsString();
-            tipos.add(nome);
-        }
+        for (String nome : nomes) {
+            System.out.println("=== " + nome + " ===");
+            try {
+                JsonObject json = client.get("https://pokeapi.co/api/v2/pokemon/" + nome);
+                Pokemon p = mapper.montar(json);
 
-        
-        String sprite = json.getAsJsonObject("sprites").get("front_default").getAsString();
-        
-        for (JsonElement e : json.getAsJsonArray("stats")) {
-            JsonObject item = e.getAsJsonObject();
-            String nomeStat = item.getAsJsonObject("stat").get("name").getAsString();
-            int valorStat = item.get("base_stat").getAsInt();
-            System.out.println(nomeStat + ": " + valorStat);
-        }
-        
-        List<String> moves = new ArrayList<>();
-        for (JsonElement e : json.getAsJsonArray("moves")) {
-            JsonObject item = e.getAsJsonObject();
-            String urlAtaque = item.getAsJsonObject("move").get("url").getAsString();
-            JsonObject jsonAtaque = api.get(urlAtaque);
-            if  (jsonAtaque.get("power").isJsonNull()) {
-                continue;
+                System.out.println("Nome: " + p.getNome());
+                System.out.println("Tipos: " + p.getTipos());
+                System.out.println("Sprite: " + p.getSpriteUrl());
+                JOptionPane.showMessageDialog(null, p.getNome(), "Sprite",
+        JOptionPane.PLAIN_MESSAGE, new ImageIcon(URI.create(p.getSpriteUrl()).toURL()));
+
+                Status s = p.getStatus();
+                System.out.println("HP: " + s.getHp()
+                        + " | Atk: " + s.getAtaque()
+                        + " | Def: " + s.getDefesa()
+                        + " | SpAtk: " + s.getAtaqueEspecial()
+                        + " | SpDef: " + s.getDefesaEspecial()
+                        + " | Vel: " + s.getVelocidade());
+                System.out.println("HP atual: " + p.getHpAtual());
+
+                System.out.println("Ataques:");
+                for (Ataque a : p.getAtaques()) {
+                    System.out.println("  - " + a.getNome()
+                            + " | poder " + a.getPoder()
+                            + " | tipo " + a.getTipo()
+                            + " | " + a.getClass().getSimpleName());
+                }
+            } catch (PokemonNaoEncontradoException ex) {
+                System.out.println("Recusado: " + ex.getMessage());
+            } catch (ApiIndisponivelException ex) {
+                System.out.println("Sem conexão: " + ex.getMessage());
             }
-            String classDamage = jsonAtaque.get("damage_class").getAsJsonObject().get("name").getAsString();
-            if (!classDamage.equals("physical") && !classDamage.equals("special")) {
-                continue;
-            }
-            moves.add(jsonAtaque.get("name").getAsString());
-
-            if (moves.size() >= 4) {
-                break;
-            }
+            System.out.println();
         }
-
-        if (moves.size() < 4) {
-            throw new PokemonNaoEncontradoException("O Pokémon não possui 4 ataques físicos ou especiais.");
-        }
-
-
-
-        System.out.println("Abilities: " + abilities);
-        System.out.println("Types: " + tipos);
-        System.out.println("Sprite: " + sprite);
-        System.out.println("Moves: " + moves);
     }
 }

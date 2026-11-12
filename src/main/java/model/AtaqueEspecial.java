@@ -1,3 +1,4 @@
+package model;
 public class AtaqueEspecial extends Ataque {
 
     public AtaqueEspecial(String nome, int poder, String tipo) {

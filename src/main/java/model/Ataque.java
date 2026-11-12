@@ -1,3 +1,4 @@
+package model;
 public abstract class Ataque {
     private String nome;
     private int poder;

@@ -1,3 +1,4 @@
+package model;
 public class TimeCheioException extends Exception {
 
     public TimeCheioException(String mensagem) {

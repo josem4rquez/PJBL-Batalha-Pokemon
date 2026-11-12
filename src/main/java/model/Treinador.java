@@ -1,3 +1,4 @@
+package model;
 public class Treinador {
     private String nome;
     private Time time;
