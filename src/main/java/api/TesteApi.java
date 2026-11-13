@@ -1,50 +1,27 @@
 package api;
 
-import java.net.URI;
-
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-
-import com.google.gson.JsonObject;
 import model.Ataque;
 import model.Pokemon;
-import model.Status;
 
 public class TesteApi {
-    public static void main(String[] args) throws Exception {
-        PokeApiClient client = new PokeApiClient();
-        PokemonMapper mapper = new PokemonMapper(client);
+    public static void main(String[] args) {
+        FontePokemon fonte = new FontePokeApi();
 
-        String[] nomes = {"charmander", "bulbasaur", "squirtle", "charizard", "ditto", "pikachuuu"};
+        String[] nomes = {"charmander", "charmander", "Charmander ", "bulbasaur", "ditto", "pikachuuu"};
 
         for (String nome : nomes) {
-            System.out.println("=== " + nome + " ===");
+            System.out.println("=== buscando \"" + nome + "\" ===");
+            long inicio = System.currentTimeMillis();
             try {
-                JsonObject json = client.get("https://pokeapi.co/api/v2/pokemon/" + nome);
-                Pokemon p = mapper.montar(json);
+                Pokemon p = fonte.buscar(nome);
+                long tempo = System.currentTimeMillis() - inicio;
 
-                System.out.println("Nome: " + p.getNome());
-                System.out.println("Tipos: " + p.getTipos());
-                System.out.println("Sprite: " + p.getSpriteUrl());
-                JOptionPane.showMessageDialog(null, p.getNome(), "Sprite",
-        JOptionPane.PLAIN_MESSAGE, new ImageIcon(URI.create(p.getSpriteUrl()).toURL()));
-
-                Status s = p.getStatus();
-                System.out.println("HP: " + s.getHp()
-                        + " | Atk: " + s.getAtaque()
-                        + " | Def: " + s.getDefesa()
-                        + " | SpAtk: " + s.getAtaqueEspecial()
-                        + " | SpDef: " + s.getDefesaEspecial()
-                        + " | Vel: " + s.getVelocidade());
-                System.out.println("HP atual: " + p.getHpAtual());
-
-                System.out.println("Ataques:");
+                System.out.println("Nome: " + p.getNome() + " | Tipos: " + p.getTipos()
+                        + " | HP: " + p.getStatus().getHp());
                 for (Ataque a : p.getAtaques()) {
-                    System.out.println("  - " + a.getNome()
-                            + " | poder " + a.getPoder()
-                            + " | tipo " + a.getTipo()
-                            + " | " + a.getClass().getSimpleName());
+                    System.out.println("  - " + a.getNome() + " (" + a.getPoder() + ")");
                 }
+                System.out.println("Tempo: " + tempo + " ms");
             } catch (PokemonNaoEncontradoException ex) {
                 System.out.println("Recusado: " + ex.getMessage());
             } catch (ApiIndisponivelException ex) {
