@@ -1,5 +1,6 @@
 package api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,14 +21,22 @@ public class FontePokeApi implements FontePokemon {
             throws PokemonNaoEncontradoException, ApiIndisponivelException {
         String chave = nome.toLowerCase().trim();
         if (cache.containsKey(chave)) {
-            return cache.get(chave);
+            return copiar(cache.get(chave));
         }
 
         JsonObject json = client.get(URL_BASE + chave);
         Pokemon pokemon = mapper.montar(json);
-
         cache.put(chave, pokemon);
 
-        return pokemon;
+        return copiar(pokemon);
+    }
+
+    private Pokemon copiar(Pokemon original) {
+        return new Pokemon(
+            original.getNome(),
+            new ArrayList<>(original.getTipos()),
+            original.getStatus(),
+            new ArrayList<>(original.getAtaques()),
+            original.getSpriteUrl());
     }
 }
