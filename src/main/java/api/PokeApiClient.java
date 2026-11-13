@@ -18,17 +18,15 @@ public class PokeApiClient {
         HttpResponse<String> response;
         try {
             HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .build();
+                    .uri(URI.create(url))
+                    .build();
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
             throw new ApiIndisponivelException("Erro ao acessar a API", e);
-        } 
-            if (response.statusCode() == 404) {
-                    throw new PokemonNaoEncontradoException("Pokemon não encontrado " + url);
-                }
+        }
+        if (response.statusCode() == 404) {
+            throw new PokemonNaoEncontradoException("Pokemon não encontrado: " + url);
+        }
         return JsonParser.parseString(response.body()).getAsJsonObject();
     }
 }
-
-

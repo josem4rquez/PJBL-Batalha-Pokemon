@@ -23,7 +23,7 @@ public class FontePokeApi implements FontePokemon {
             return cache.get(chave);
         }
 
-        JsonObject json = client.get("https://pokeapi.co/api/v2/pokemon/" + chave);
+        JsonObject json = client.get(URL_BASE + chave);
         Pokemon pokemon = mapper.montar(json);
 
         cache.put(chave, pokemon);
