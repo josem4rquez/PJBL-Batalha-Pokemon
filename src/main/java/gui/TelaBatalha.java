@@ -1,15 +1,22 @@
 package gui;
 
-import model.Ataque;
-import model.Batalha;
-import model.Pokemon;
-import model.Time;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import model.Ataque;
+import model.Batalha;
+import model.Placar;
+import model.Pokemon;
+import model.Time;
 
 // Tela 2: a batalha. Esta classe só MOSTRA e repassa os cliques;
 // as regras (dano, ordem, troca) ficam todas na classe Batalha do model.
@@ -119,8 +126,12 @@ public class TelaBatalha extends JPanel implements ActionListener {
                 Ataque a = meu.getAtaques().get(i);
                 botoesAtaque[i].setText("<html><center>" + a.getNome() + "<br>" + a.getTipo()
                         + " · poder " + a.getPoder() + "</center></html>");
+                // descricao() é sobrescrito em AtaqueEspecial: a variável é do tipo Ataque, mas o Java
+                // decide em tempo de execução qual versão chamar (chamada polimórfica)
+                botoesAtaque[i].setToolTipText(a.descricao());
             } else {
                 botoesAtaque[i].setText("-");
+                botoesAtaque[i].setToolTipText(null);
             }
             botoesAtaque[i].setEnabled(temAtaque);
         }
@@ -146,9 +157,14 @@ public class TelaBatalha extends JPanel implements ActionListener {
         return quantos;
     }
 
-    // Fim da batalha: mostra quem venceu.
+    // Fim da batalha: atualiza o placar salvo em arquivo (objeto persistente) e mostra o resultado.
     private void fimDeJogo() {
-        String mensagem = "Vencedor: " + batalha.vencedor().getNome();
+        Placar placar = Placar.carregar();          // lê o placar.dat (se não existir, começa 0 x 0)
+        placar.registrar(batalha.vencedor() == batalha.getJogador());   // soma vitória ou derrota
+        placar.salvar();                            // grava o objeto de volta no placar.dat
+
+        String mensagem = "Vencedor: " + batalha.vencedor().getNome()
+                + "\nPlacar: " + placar.getVitorias() + " x " + placar.getDerrotas();
         log.append(mensagem + "\n");
         JOptionPane.showMessageDialog(this, mensagem, "Fim de jogo", JOptionPane.INFORMATION_MESSAGE);
     }

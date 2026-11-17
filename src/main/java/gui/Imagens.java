@@ -1,10 +1,11 @@
 package gui;
 
-import javax.swing.ImageIcon;
 import java.awt.Image;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.ImageIcon;
 
 // Baixa o sprite (imagem) do Pokémon pela URL e guarda num Map,
 // para não baixar a mesma imagem de novo a cada atualização da tela.

@@ -1,13 +1,15 @@
 package gui;
 
+import java.awt.CardLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import model.Batalha;
 import model.EstrategiaAleatoria;
 import model.EstrategiaDeAtaque;
 import model.EstrategiaMaisForte;
 import model.Treinador;
-
-import javax.swing.*;
-import java.awt.*;
 
 // A janela do programa. "extends JFrame" = ela É uma janela (herança).
 // Guarda uma "pilha de cartas" (CardLayout): cada tela é uma carta,

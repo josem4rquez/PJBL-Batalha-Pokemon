@@ -1,9 +1,18 @@
 package gui;
 
-import model.Pokemon;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridLayout;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
+
+import model.Pokemon;
 
 // Um dos lados da batalha: nome, sprite e barra de HP de UM Pokémon.
 // "extends JPanel": herança. A TelaBatalha usa dois objetos desta classe (jogador e CPU).

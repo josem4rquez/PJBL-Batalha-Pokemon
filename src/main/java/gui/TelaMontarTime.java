@@ -1,20 +1,33 @@
 package gui;
 
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
 import api.ApiIndisponivelException;
+import api.FonteLocal;
 import api.FontePokeApi;
 import api.FontePokemon;
 import api.PokemonNaoEncontradoException;
 import model.Pokemon;
 import model.TimeCheioException;
 import model.Treinador;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 // Tela 1: o jogador busca 3 Pokémon pelo nome e escolhe a dificuldade.
 // "implements ActionListener": a própria tela trata os cliques dos botões, no actionPerformed.
@@ -28,7 +41,10 @@ public class TelaMontarTime extends JPanel implements ActionListener {
 
     private final JanelaPrincipal janela;
 
+    // fonteLocal é do tipo FonteLocal (e não FontePokemon) de propósito:
+    // assim o Java sabe que ela só lança PokemonNaoEncontradoException.
     private FontePokemon fonteApi = new FontePokeApi();    // a PokéAPI (precisa de internet)
+    private FonteLocal fonteLocal = new FonteLocal();      // o pokemons.csv (funciona sem internet)
 
     private Treinador jogador = new Treinador("Você");     // o jogador e o time dele (classes do model)
 
@@ -88,9 +104,13 @@ public class TelaMontarTime extends JPanel implements ActionListener {
         }
     }
 
-    // Busca na PokéAPI (por enquanto só funciona com internet).
-    public Pokemon buscarPokemon(String nome) throws PokemonNaoEncontradoException, ApiIndisponivelException {
-        return fonteApi.buscar(nome);
+    // Tenta a API; se estiver sem internet, busca no pokemons.csv.
+    public Pokemon buscarPokemon(String nome) throws PokemonNaoEncontradoException {
+        try {
+            return fonteApi.buscar(nome);
+        } catch (ApiIndisponivelException e) {
+            return fonteLocal.buscar(nome);
+        }
     }
 
     // Lê o nome digitado, busca e coloca no time.
@@ -115,8 +135,6 @@ public class TelaMontarTime extends JPanel implements ActionListener {
             aviso(ex.getMessage());                 // ex.: Pokémon não existe
         } catch (TimeCheioException ex) {
             aviso(ex.getMessage());
-        } catch (ApiIndisponivelException ex) {
-            aviso("Sem conexão com a PokéAPI. Verifique a internet.");
         } catch (RuntimeException ex) {
             // dado inesperado vindo da API (ex.: Pokémon sem imagem): não deixa travar
             aviso("Não foi possível ler os dados desse Pokémon. Tente outro.");
@@ -148,9 +166,6 @@ public class TelaMontarTime extends JPanel implements ActionListener {
                     cpu.getTime().adicionar(buscarPokemon(nome));
                 } catch (PokemonNaoEncontradoException | TimeCheioException | RuntimeException e) {
                     // esse Pokémon não serviu (não existe, poucos ataques, dado estranho): tenta o próximo
-                } catch (ApiIndisponivelException e) {
-                    aviso("Sem conexão com a PokéAPI. Verifique a internet.");
-                    return null;
                 }
             }
         } finally {
